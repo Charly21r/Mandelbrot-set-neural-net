@@ -69,3 +69,18 @@ def plot_roc(y_true, y_prob, outpath=None):
         plt.close()
     else:
         plt.show()
+
+def plot_confusion(y_true, y_pred, outpath=None):
+    cm = confusion_matrix(y_true.ravel(), y_pred.ravel())
+    plt.figure(figsize=(4.5,4))
+    plt.imshow(cm, aspect="equal")
+    for (i,j), v in np.ndenumerate(cm):
+        plt.text(j, i, str(v), ha="center", va="center")
+    plt.title("Confusion Matrix"); plt.xlabel("Pred"); plt.ylabel("True")
+    if outpath:
+        os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
+        plt.savefig(outpath, dpi=160, bbox_inches="tight")
+        print("Saved:", outpath)
+        plt.close()
+    else:
+        plt.show()
