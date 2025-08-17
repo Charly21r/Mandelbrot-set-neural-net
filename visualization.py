@@ -2,6 +2,7 @@ import os
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc, confusion_matrix
 
 def make_grid(xlim=(-2,1), ylim=(-1.5,1.5), res=(400,400)):
     xs = np.linspace(*xlim, res[0])
@@ -46,6 +47,21 @@ def plot_learning_curves(train_losses, val_losses, outpath=None):
     plt.title("Learning Curves")
     plt.xlabel("Epoch"); plt.ylabel("Loss")
     plt.legend()
+    if outpath:
+        os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
+        plt.savefig(outpath, dpi=160, bbox_inches="tight")
+        print("Saved:", outpath)
+        plt.close()
+    else:
+        plt.show()
+
+def plot_roc(y_true, y_prob, outpath=None):
+    fpr, tpr, _ = roc_curve(y_true.ravel(), y_prob.ravel())
+    roc_auc = auc(fpr, tpr)
+    plt.figure(figsize=(5,5))
+    plt.plot(fpr, tpr, label=f"AUC={roc_auc:.3f}")
+    plt.plot([0,1],[0,1],"--")
+    plt.xlabel("FPR"); plt.ylabel("TPR"); plt.title("ROC Curve"); plt.legend()
     if outpath:
         os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
         plt.savefig(outpath, dpi=160, bbox_inches="tight")
