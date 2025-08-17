@@ -38,3 +38,18 @@ def plot_probability_heatmap(model, device, epoch, xlim=(-2,1), ylim=(-1.5,1.5),
     plt.close()
     print("Saved:", fname)
 
+
+def plot_learning_curves(train_losses, val_losses, outpath=None):
+    plt.figure(figsize=(6,4))
+    plt.plot(train_losses, label="Train")
+    plt.plot(val_losses, label="Val")
+    plt.title("Learning Curves")
+    plt.xlabel("Epoch"); plt.ylabel("Loss")
+    plt.legend()
+    if outpath:
+        os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
+        plt.savefig(outpath, dpi=160, bbox_inches="tight")
+        print("Saved:", outpath)
+        plt.close()
+    else:
+        plt.show()
