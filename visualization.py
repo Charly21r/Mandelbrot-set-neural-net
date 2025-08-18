@@ -84,3 +84,30 @@ def plot_confusion(y_true, y_pred, outpath=None):
         plt.close()
     else:
         plt.show()
+
+
+def compare_grid(gt_mask, prob, threshold=0.5, xlim=(-2,1), ylim=(-1.5,1.5),
+                 outpath="images/compare_grid.png"):
+    """
+    gt_mask: (H,W) boolean ground truth (in set?)
+    prob   : (H,W) model probability
+    """
+    pred = (prob > threshold)
+    err = np.abs(gt_mask.astype(np.float32) - prob.astype(np.float32))
+
+    fig, axes = plt.subplots(1,4, figsize=(12,3.2))
+    axes[0].imshow(gt_mask, origin="lower", extent=[*xlim,*ylim], aspect="auto")
+    axes[0].set_title("Ground truth (mask)")
+    axes[1].imshow(prob, origin="lower", extent=[*xlim,*ylim], aspect="auto")
+    axes[1].set_title("Model probability")
+    axes[2].imshow(pred, origin="lower", extent=[*xlim,*ylim], aspect="auto")
+    axes[2].set_title(f"Prediction (>{threshold})")
+    im = axes[3].imshow(err, origin="lower", extent=[*xlim,*ylim], aspect="auto")
+    axes[3].set_title("Abs error")
+    for ax in axes:
+        ax.set_xlabel("Real"); ax.set_ylabel("Imag")
+    fig.tight_layout()
+    os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
+    plt.savefig(outpath, dpi=160, bbox_inches="tight")
+    plt.close()
+    print("Saved:", outpath)
