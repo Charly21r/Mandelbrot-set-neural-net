@@ -1,3 +1,5 @@
 .venv/
 .env
 images/*.png
+images/checkpoints/*.pt
+__pycache__/
