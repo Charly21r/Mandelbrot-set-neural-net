@@ -33,8 +33,8 @@ def plot_probability_heatmap(model, device, epoch, xlim=(-2,1), ylim=(-1.5,1.5),
     plt.imshow(probs, extent=[xlim[0], xlim[1], ylim[0], ylim[1]],
                origin="lower", aspect="auto")
     # 0.5 contour (decision boundary) so it looks better
-    cs = plt.contour(X, Y, probs, levels=[0.5], linewidths=1.0)
-    plt.clabel(cs, inline=True, fontsize=8, fmt={0.5:"0.5"})
+    # cs = plt.contour(X, Y, probs, levels=[0.5], linewidths=1.0)
+    # plt.clabel(cs, inline=True, fontsize=8, fmt={0.5:"0.5"})
     plt.title(f"Probability map @ epoch {epoch+1}")
     plt.xlabel("Real"); plt.ylabel("Imag")
     fname = os.path.join(outdir, f"prob_epoch_{epoch+1}.png")
