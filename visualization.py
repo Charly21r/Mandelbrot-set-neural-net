@@ -3,6 +3,9 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc, confusion_matrix
+import io
+import imageio.v2 as imageio
+
 
 def make_grid(xlim=(-2,1), ylim=(-1.5,1.5), res=(400,400)):
     xs = np.linspace(*xlim, res[0])
@@ -110,4 +113,33 @@ def compare_grid(gt_mask, prob, threshold=0.5, xlim=(-2,1), ylim=(-1.5,1.5),
     os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
     plt.savefig(outpath, dpi=160, bbox_inches="tight")
     plt.close()
+    print("Saved:", outpath)
+
+
+def save_animation(checkpoint_paths, build_model_fn, device,
+                   xlim=(-2,1), ylim=(-1.5,1.5), res=(400,400),
+                   outpath="images/training.gif"):
+    """
+    checkpoint_paths: list of paths saved over training
+    build_model_fn: lambda -> uninitialized model with same arch
+    """
+    
+    frames = []
+    for i, ckpt in enumerate(checkpoint_paths, 1):
+        model = build_model_fn().to(device)
+        sd = torch.load(ckpt, map_location=device)
+        model.load_state_dict(sd)
+        X, Y, grid = make_grid(xlim, ylim, res)
+        probs = model_prob_grid(model, device, grid, res)
+        fig = plt.figure(figsize=(6,6))
+        plt.imshow(probs, extent=[xlim[0], xlim[1], ylim[0], ylim[1]],
+                   origin="lower", aspect="auto")
+        plt.title(f"Step {i}")
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png", dpi=120, bbox_inches="tight")
+        plt.close(fig)
+        buf.seek(0)
+        frames.append(imageio.imread(buf))
+    os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
+    imageio.mimsave(outpath, frames, duration=0.6)
     print("Saved:", outpath)
