@@ -6,7 +6,6 @@ from sklearn.metrics import roc_curve, auc, confusion_matrix
 import io
 import imageio.v2 as imageio
 
-
 def make_grid(xlim=(-2,1), ylim=(-1.5,1.5), res=(1200,1200)):
     xs = np.linspace(*xlim, res[0])
     ys = np.linspace(*ylim, res[1])
@@ -142,3 +141,79 @@ def save_animation(checkpoint_paths, build_model_fn, device,
     os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
     imageio.mimsave(outpath, frames, duration=0.6)
     print("Saved:", outpath)
+
+
+def save_zoom_gif_for_model(
+    model,
+    device,
+    center = (-0.743643887037151, 0.131825904205330),
+    initial_width=3.0,             # initial real-axis span
+    initial_height=3.0,            # initial imag-axis span
+    zoom_factors=None,             # list/array of zoom factors
+    res=(600, 600),                # pixels of each frame
+    outpath="images/zoom_model.gif",
+    cmap="viridis",
+    duration=0.5,                  # seconds per frame
+    title_prefix="Model"
+):
+    """
+    Create a GIF zooming into the Mandelbrot plane for a single model.
+
+    Each frame is a probability heatmap for a different zoom level.
+    """
+    os.makedirs(os.path.dirname(outpath) or ".", exist_ok=True)
+
+    if zoom_factors is None:
+        # From full view to 100x zoom (log-spaced)
+        zoom_factors = np.geomspace(1.0, 0.01, num=30)
+
+    frames = []
+
+    model.to(device).eval()
+
+    for i, z in enumerate(zoom_factors, 1):
+        width = initial_width * z
+        height = initial_height * z
+
+        x_center, y_center = center
+        xlim = (x_center - width / 2, x_center + width / 2)
+        ylim = (y_center - height / 2, y_center + height / 2)
+
+        # Build grid and get probabilities
+        Xg, Yg, grid = make_grid(xlim, ylim, res)
+        probs = model_prob_grid(model, device, grid, res)
+
+        # Plot one panel: probability heatmap
+        fig = plt.figure(figsize=(6, 6))
+        im = plt.imshow(
+            probs,
+            extent=[xlim[0], xlim[1], ylim[0], ylim[1]],
+            origin="lower",
+            aspect="auto",
+            interpolation="lanczos",
+            cmap=cmap,
+            vmin=0.0,
+            vmax=1.0,
+        )
+        plt.xlabel("Real")
+        plt.ylabel("Imag")
+        plt.title(f"{title_prefix} – Zoom {i}/{len(zoom_factors)} (factor={z:.4f})")
+
+        cbar = plt.colorbar(im)
+        cbar.set_label("Probability")
+
+        plt.tight_layout()
+
+        # Save to buffer
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png", dpi=200)
+        plt.close(fig)
+        buf.seek(0)
+        frame = imageio.imread(buf)
+        frames.append(frame)
+
+        print(f"[{title_prefix}] Added frame {i}/{len(zoom_factors)} xlim={xlim}, ylim={ylim}")
+
+    # Write GIF
+    imageio.mimsave(outpath, frames, duration=duration)
+    print("Saved zoom GIF to:", outpath)
