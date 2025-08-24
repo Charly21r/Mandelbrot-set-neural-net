@@ -7,7 +7,7 @@ import io
 import imageio.v2 as imageio
 
 
-def make_grid(xlim=(-2,1), ylim=(-1.5,1.5), res=(400,400)):
+def make_grid(xlim=(-2,1), ylim=(-1.5,1.5), res=(1200,1200)):
     xs = np.linspace(*xlim, res[0])
     ys = np.linspace(*ylim, res[1])
     X, Y = np.meshgrid(xs, ys, indexing="xy")
@@ -24,21 +24,20 @@ def model_prob_grid(model, device, grid, res):
 
 
 def plot_probability_heatmap(model, device, epoch, xlim=(-2,1), ylim=(-1.5,1.5),
-                             res=(400,400), outdir="images"):
+                             res=(1500,1500), outdir="images"):
     os.makedirs(outdir, exist_ok=True)
     X, Y, grid = make_grid(xlim, ylim, res)
     probs = model_prob_grid(model, device, grid, res)
 
-    plt.figure(figsize=(6,6))
+    plt.figure(figsize=(8,8))
     plt.imshow(probs, extent=[xlim[0], xlim[1], ylim[0], ylim[1]],
-               origin="lower", aspect="auto")
-    # 0.5 contour (decision boundary) so it looks better
-    # cs = plt.contour(X, Y, probs, levels=[0.5], linewidths=1.0)
-    # plt.clabel(cs, inline=True, fontsize=8, fmt={0.5:"0.5"})
+               origin="lower", aspect="auto", interpolation="lanczos")
     plt.title(f"Probability map @ epoch {epoch+1}")
     plt.xlabel("Real"); plt.ylabel("Imag")
     fname = os.path.join(outdir, f"prob_epoch_{epoch+1}.png")
-    plt.savefig(fname, dpi=160, bbox_inches="tight")
+    plt.savefig(fname, dpi=400, bbox_inches="tight")
+    fname = os.path.join(outdir, f"prob_epoch_{epoch+1}.pdf")
+    plt.savefig(fname, dpi=400, bbox_inches="tight")
     plt.close()
     print("Saved:", fname)
 
@@ -123,7 +122,7 @@ def save_animation(checkpoint_paths, build_model_fn, device,
     checkpoint_paths: list of paths saved over training
     build_model_fn: lambda -> uninitialized model with same arch
     """
-    
+
     frames = []
     for i, ckpt in enumerate(checkpoint_paths, 1):
         model = build_model_fn().to(device)
@@ -136,7 +135,7 @@ def save_animation(checkpoint_paths, build_model_fn, device,
                    origin="lower", aspect="auto")
         plt.title(f"Step {i}")
         buf = io.BytesIO()
-        plt.savefig(buf, format="png", dpi=120, bbox_inches="tight")
+        plt.savefig(buf, format="png", dpi=300, bbox_inches="tight")
         plt.close(fig)
         buf.seek(0)
         frames.append(imageio.imread(buf))
