@@ -21,6 +21,13 @@ def model_prob_grid(model, device, grid, res):
     probs = torch.sigmoid(logits).reshape(res[1], res[0]).cpu().numpy()  # (H,W)
     return probs
 
+@torch.no_grad()
+def model_value_grid(model, device, grid, res):
+    model.eval()
+    g = torch.from_numpy(grid).float().to(device)
+    vals = model(g).squeeze(1)          # (N,)
+    vals = vals.reshape(res[1], res[0]) # (H,W)
+    return vals.cpu().numpy()
 
 def plot_probability_heatmap(model, device, epoch, xlim=(-2,1), ylim=(-1.5,1.5),
                              res=(1500,1500), outdir="images"):
