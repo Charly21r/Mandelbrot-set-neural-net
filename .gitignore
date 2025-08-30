@@ -4,3 +4,4 @@ images/*.png
 images/checkpoints/*.pt
 __pycache__/
 models/
+runs/
