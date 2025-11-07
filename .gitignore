@@ -1,7 +1,6 @@
 .venv/
 .env
-images/*.png
-images/checkpoints/*.pt
+images/*
 __pycache__/
 models/
 runs/
