@@ -1,0 +1,11 @@
+{
+  "model_name": "fourier_res",
+  "dataset_n_total": 1000000,
+  "dataset_frac_boundary": 0.7,
+  "boundary_band": [0.35, 0.95],
+  "model_hidden_dim": 512,
+  "model_hidden_layers": 20,
+  "model_act": "silu",
+  "train_epochs": 100,
+  "preview_every": 5
+}

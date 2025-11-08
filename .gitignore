@@ -1,6 +1,6 @@
 .venv/
 .env
-images/*
 __pycache__/
-models/
+*.egg-info/
+images/
 runs/
