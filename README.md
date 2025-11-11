@@ -27,16 +27,20 @@ This repo is both:
 
 ### Fourier features vs. no Fourier features
 
-| With Fourier Features | Without Fourier Features |
-|----------------------|--------------------------|
-| Sharp boundary detail | Blurry, unstable boundary |
-
-<p align="center">
-  <img src="assets/final_4k_fourier.png" width="800">
-</p>
-<p align="center">
-  <img src="assets/final_4k_no_fourier.png" width="800">
-</p>
+<table align="center">
+  <tr>
+    <th>With Fourier Features</th>
+    <th>Without Fourier Features</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/final_4k_fourier.png" width="400">
+    </td>
+    <td align="center">
+      <img src="assets/final_4k_no_fourier.png" width="400">
+    </td>
+  </tr>
+</table>
 
 ---
 
